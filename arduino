@@ -1,0 +1,41 @@
+//FIRMWARE ASSIGNMENT
+#include <elapsedMillis.h>
+
+const int lm35Pin = A0;
+const int ledPin = 13; // Built-in LED pin
+
+const int belowThresholdBlinkInterval = 250; // milliseconds
+const int aboveThresholdBlinkInterval = 500; // milliseconds
+const int thresholdTemperature = 30; // Celsius
+
+elapsedMillis belowThresholdTimer;
+elapsedMillis aboveThresholdTimer;
+
+void setup() {
+  pinMode(ledPin, OUTPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  int temperature = readTemperature();
+ 
+  if (temperature < thresholdTemperature) {
+    // Below threshold temperature
+    if (belowThresholdTimer >= belowThresholdBlinkInterval) {
+      digitalWrite(ledPin, !digitalRead(ledPin)); // Toggle LED state
+      belowThresholdTimer = 0; // Reset timer
+    }
+  } else {
+    // Above or equal to threshold temperature
+    if (aboveThresholdTimer >= aboveThresholdBlinkInterval) {
+      digitalWrite(ledPin, !digitalRead(ledPin)); // Toggle LED state
+      aboveThresholdTimer = 0; // Reset timer
+    }
+  }
+}
+
+int readTemperature() {
+  int sensorValue = analogRead(lm35Pin);
+  float temperature = (sensorValue * 5.0 / 1023) * 100; // LM35 output voltage is 10mV per degree Celsius
+  return temperature;
+}
